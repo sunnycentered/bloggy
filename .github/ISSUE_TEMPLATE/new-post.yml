@@ -1,0 +1,27 @@
+name: Submit Blog Post
+about: Submit a new blog post for review
+title: '[Draft] New Post: <title>'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for submitting! Your post will be reviewed.
+  - type: input
+    id: post-title
+    attributes:
+      label: Post Title
+      description: Keep it under 60 characters
+      placeholder: Introduction to Git
+  - type: textarea
+    id: post-content
+    attributes:
+      label: Post Content
+      description: Paste your markdown content here
+      placeholder: # Introduction
+      value: |
+        [Write your content here]
+  - type: textarea
+    id: post-images
+    attributes:
+      label: Images (optional)
+      description: Upload image URLs to a separate file or list them

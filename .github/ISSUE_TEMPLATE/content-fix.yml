@@ -1,0 +1,23 @@
+name: Fix Broken/Incorrect Content
+about: Report broken links, typos, or other issues
+title: '[Fix] <issue type>: <description>'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please provide details.
+  - type: input
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: Choose the issue category
+      options:
+        - Broken Link
+        - Incorrect Heading
+        - Grammar Issue
+        - Missing Image
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      placeholder: What is the issue?

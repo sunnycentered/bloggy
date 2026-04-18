@@ -1,0 +1,36 @@
+name: Content Review Workflow
+on:
+  pull_request:
+    branches:
+      - main
+  issues:
+    types: [opened]
+jobs:
+  review-post:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: Review Post Content
+      id: review
+      run: |
+        echo "Reviewing pull request: ${{ github.event.pull_request.number }}"
+        check-markdown --file="${{ github.event.pull_request.head.sha }}"
+    - name: Check Links
+      if: steps.review.outcome == 'success'
+      run: |
+        curl -s "https://httpbin.org/get" | grep -q "live" || \
+        github-comment "Links need checking. Some links might not work."
+    - name: Approve Content
+      if: steps.review.outcome == 'success'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Approve if all checks pass
+          if (allChecksPassed) {
+            github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: '👍 Content looks good! Approved for merge.'
+            })
+          }

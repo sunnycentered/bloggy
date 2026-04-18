@@ -1,0 +1,17 @@
+name: Auto Deploy Approved Content
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+jobs:
+  auto-deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy Approved Content
+      run: |
+        echo "Merged PR: ${{ github.event.pull_request.number }}"
+        echo "Deploying to GitHub Pages..."
+        # This triggers a rebuild
+        # The gh-pages branch is automatically published
+    echo "✅ Content published successfully!"

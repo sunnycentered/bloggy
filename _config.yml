@@ -1,0 +1,11 @@
+title: My GitHub Blog
+description: A blog built with GitHub Pages
+theme: jekyll-theme-minimal
+github:
+  image: https://github.com/username.png
+  url: https://github.com/username
+collections:
+  posts:
+    output: true
+    sort_by: date
+    permalink: /:collection/:year/:month/:title/
