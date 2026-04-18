@@ -14,70 +14,56 @@ fatal: unable to access 'https://github.com/sunnycentered/bloggy.git/': The requ
 
 ## Solution Applied
 
-I've updated your `deploy.yml` workflow to use the `peaceiris/actions-gh-pages` action with proper permissions:
+I've updated your `deploy.yml` workflow to use **GitHub's native Pages deployment** with proper configuration:
 
-### 1. Added Explicit Permissions
+### 1. Added Required Permissions
 ```yaml
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 ```
-This grants the workflow write access to push to the gh-pages branch.
+These are the exact permissions required for native GitHub Pages deployment.
 
-### 2. Fixed Trigger Configuration
+### 2. Separated Build and Deploy Jobs
+- **Build Job**: Compiles the Jekyll site and uploads as artifact
+- **Deploy Job**: Deploys the artifact to GitHub Pages (runs only after build succeeds)
+
+### 3. Used Native GitHub Actions
+- `actions/upload-pages-artifact@v3`: Official artifact upload for Pages
+- `actions/deploy-pages@v4`: Official Pages deployment action
+- Proper environment configuration with `github-pages` environment
+
+### 4. Added Concurrency Control
 ```yaml
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 ```
-- **Removed** the `github-pages` environment protection (was causing deployment rejection)
-- **Added** manual trigger option via `workflow_dispatch`
-
-### 3. Used Reliable Deployment Action
-- Switched back to `peaceiris/actions-gh-pages@v3` (battle-tested for Jekyll sites)
-- Direct push to gh-pages branch
-- No complex environment configuration needed
-
-### 4. Improved Build Configuration
-- Updated to Ruby/Jekyll best practices with `ruby/setup-ruby`
-- Proper bundler caching for faster builds
-- Direct Jekyll build command
+Prevents multiple deployments from running simultaneously.
 
 ## Additional Configuration Needed
 
-### Step 1: Update Repository Settings
+### Step 1: Enable GitHub Pages with Actions
 1. Go to your repository on GitHub
 2. Click **Settings** → **Pages**
-3. Under **Source**, select **Deploy from branch**
-4. Choose **gh-pages** as the branch
-5. Click **Save**
+3. Under **Source**, select **GitHub Actions**
+4. Click **Save**
 
-### Step 2: Enable Actions Permissions
+**Important**: This is different from "Deploy from branch" - you must select "GitHub Actions" for native deployment.
+
+### Step 2: Verify Actions Permissions
 1. Go to **Settings** → **Actions** → **General**
-2. Under **Workflow permissions**, select:
-   - ✅ Read and write permissions
-   - ✅ Allow GitHub Actions to create and approve pull requests
+2. Under **Workflow permissions**, ensure:
+   - ✅ Read and write permissions (recommended)
 3. Click **Save**
 
-### Step 3: Create a Gemfile (Optional but Recommended)
-Create a `Gemfile` in your repository root:
-```ruby
-source "https://rubygems.org"
-
-gem "jekyll", "~> 4.3.0"
-
-group :jekyll_plugins do
-  gem "jekyll-feed", "~> 0.12"
-  gem "jekyll-sitemap"
-  gem "jekyll-seo-tag"
-end
-```
-
-Then run locally:
-```bash
-bundle install
-```
+### Step 3: Check Environment Settings (Optional)
+The `github-pages` environment is created automatically, but you can customize it:
+1. Go to **Settings** → **Environments**
+2. Click **github-pages**
+3. Configure deployment branches or add reviewers if needed
+4. By default, it should allow deployments from the workflow
 
 ## Testing the Fix
 
@@ -147,11 +133,12 @@ bundle exec jekyll serve
 | Aspect | Before | After |
 |--------|--------|-------|
 | **Trigger** | main + gh-pages (circular) | main only + manual |
-| **Permissions** | None | Explicit write permissions |
-| **Deploy Action** | peaceiris/actions-gh-pages (old) | peaceiris/actions-gh-pages (fixed) |
+| **Permissions** | None | contents: read, pages: write, id-token: write |
+| **Deploy Action** | peaceiris/actions-gh-pages (broken) | actions/deploy-pages@v4 (native) |
 | **Setup** | Manual apt-get | Ruby/Bundler via actions |
-| **Build** | Conditional logic | Direct Jekyll build |
-| **Environment** | None | Removed github-pages environment |
+| **Build** | Conditional logic | Separated build/deploy jobs |
+| **Environment** | None | github-pages environment with protection |
+| **Concurrency** | None | Pages concurrency control |
 
 ## Next Steps
 
