@@ -14,16 +14,14 @@ fatal: unable to access 'https://github.com/sunnycentered/bloggy.git/': The requ
 
 ## Solution Applied
 
-I've updated your `deploy.yml` workflow with these fixes:
+I've updated your `deploy.yml` workflow to use the `peaceiris/actions-gh-pages` action with proper permissions:
 
 ### 1. Added Explicit Permissions
 ```yaml
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 ```
-This grants the workflow the necessary write permissions to deploy to GitHub Pages.
+This grants the workflow write access to push to the gh-pages branch.
 
 ### 2. Fixed Trigger Configuration
 ```yaml
@@ -33,18 +31,18 @@ on:
       - main
   workflow_dispatch:
 ```
-- **Removed** trigger on gh-pages (was causing circular deployments)
+- **Removed** the `github-pages` environment protection (was causing deployment rejection)
 - **Added** manual trigger option via `workflow_dispatch`
 
-### 3. Upgraded to Native GitHub Actions
-- Switched from `peaceiris/actions-gh-pages@v3` to GitHub's native `actions/deploy-pages@v2`
-- Uses proper environment configuration with GitHub Pages deployment protection
-- More reliable and officially supported
+### 3. Used Reliable Deployment Action
+- Switched back to `peaceiris/actions-gh-pages@v3` (battle-tested for Jekyll sites)
+- Direct push to gh-pages branch
+- No complex environment configuration needed
 
 ### 4. Improved Build Configuration
-- Updated to Ruby/Jekyll best practices
-- Proper artifact upload before deployment
-- Better error handling and logging
+- Updated to Ruby/Jekyll best practices with `ruby/setup-ruby`
+- Proper bundler caching for faster builds
+- Direct Jekyll build command
 
 ## Additional Configuration Needed
 
@@ -149,11 +147,11 @@ bundle exec jekyll serve
 | Aspect | Before | After |
 |--------|--------|-------|
 | **Trigger** | main + gh-pages (circular) | main only + manual |
-| **Permissions** | None | Explicit read/write/id-token |
-| **Deploy Action** | peaceiris/actions-gh-pages | actions/deploy-pages |
+| **Permissions** | None | Explicit write permissions |
+| **Deploy Action** | peaceiris/actions-gh-pages (old) | peaceiris/actions-gh-pages (fixed) |
 | **Setup** | Manual apt-get | Ruby/Bundler via actions |
 | **Build** | Conditional logic | Direct Jekyll build |
-| **Artifact** | Direct publish | Upload then deploy |
+| **Environment** | None | Removed github-pages environment |
 
 ## Next Steps
 
