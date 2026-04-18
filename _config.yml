@@ -1,9 +1,9 @@
-title: My GitHub Blog
-description: A blog built with GitHub Pages
+title: Sun Centered AI
+description: Generative AI agentic workflow for the future of work.
 theme: jekyll-theme-minimal
 github:
-  image: https://github.com/username.png
-  url: https://github.com/username
+  image: https://avatars.githubusercontent.com/u/277331392?v=4&size=64
+  url: https://github.com/sunnycentered
 collections:
   posts:
     output: true

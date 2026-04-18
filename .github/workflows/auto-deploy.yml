@@ -14,4 +14,4 @@ jobs:
         echo "Deploying to GitHub Pages..."
         # This triggers a rebuild
         # The gh-pages branch is automatically published
-    echo "✅ Content published successfully!"
+        echo "✅ Content published successfully!"
